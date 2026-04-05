@@ -1025,6 +1025,7 @@ HTML;
 let customerListRows = [];
 let filteredCustomerRows = [];
 let packageNameMap = {};
+let packageAliasMap = {};
 let productNameMap = {};
 
 function money(value) {
@@ -1035,13 +1036,30 @@ function safeText(value) {
     return String(value || '').trim();
 }
 
+function packageLabel(rawValue) {
+    let raw = '';
+    if (rawValue && typeof rawValue === 'object') {
+        raw = safeText(rawValue._id || rawValue.id || rawValue.$oid || rawValue.name || '');
+    } else {
+        raw = safeText(rawValue);
+    }
+
+    if (!raw) {
+        return '';
+    }
+
+    return packageNameMap[raw] || packageAliasMap[raw.toLowerCase()] || raw;
+}
+
 async function loadCustomerListLookups() {
     const [packages, products] = await Promise.all([
         fetch('/api/packages').then(r => r.json()),
         fetch('/api/products').then(r => r.json()),
     ]);
 
-    packageNameMap = Object.fromEntries((packages.data || []).map(p => [p._id, p.name || p._id]));
+    const packageRows = packages.data || [];
+    packageNameMap = Object.fromEntries(packageRows.map(p => [safeText(p._id), safeText(p.name || p._id)]));
+    packageAliasMap = Object.fromEntries(packageRows.map(p => [safeText(p.name).toLowerCase(), safeText(p.name || p._id)]));
     productNameMap = Object.fromEntries((products.data || []).map(p => [p._id, p.name || p._id]));
 }
 
@@ -1065,7 +1083,7 @@ function renderCustomerListTable(rows) {
             <td>${safeText(row.full_name)}</td>
             <td>${safeText(row.phone)}</td>
             <td>${safeText(row.email)}</td>
-            <td>${safeText(packageNameMap[row.package_id] || row.package_id)}</td>
+            <td>${safeText(packageLabel(row.package_id))}</td>
             <td>${money(row.monthly_bill_amount)}</td>
             <td>${money(row.due_amount)}</td>
             <td>${safeText(row.status)}</td>
@@ -1125,7 +1143,7 @@ function viewCustomerListDetails(customerId) {
                 <p><strong>Phone:</strong> ${safeText(row.phone)}</p>
                 <p><strong>Email:</strong> ${safeText(row.email)}</p>
                 <p><strong>Address:</strong> ${safeText(row.address)}</p>
-                <p><strong>Package:</strong> ${safeText(packageNameMap[row.package_id] || row.package_id)}</p>
+                <p><strong>Package:</strong> ${safeText(packageLabel(row.package_id))}</p>
                 <p><strong>Monthly Bill:</strong> ${money(row.monthly_bill_amount)}</p>
                 <p><strong>Due:</strong> ${money(row.due_amount)}</p>
             </div>

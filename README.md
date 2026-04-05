@@ -166,6 +166,24 @@ Run in `mongosh`:
 load('database/indexes.js')
 ```
 
+## Clear Input Data Before Delivery
+
+Use the cleanup script to remove entered data from MongoDB.
+
+Transactional data only (customers, connections, bills, payments, income, expense, tickets):
+
+```bash
+composer db:clear -- --yes
+```
+
+Clear everything entered in the app (also topology, packages, products, users):
+
+```bash
+composer db:clear -- --yes --all
+```
+
+After `--all`, the default admin account is recreated automatically when the app starts.
+
 ## Next Development Milestones
 
 1. Auth + role-based access control

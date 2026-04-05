@@ -37,6 +37,30 @@ final class ConnectionRepository extends BaseRepository
         return array_map([$this, 'normalize'], iterator_to_array($cursor));
     }
 
+    public function hasAnyByCustomerId(string $customerId): bool
+    {
+        if ($customerId === '') {
+            return false;
+        }
+
+        return $this->collection('connection_orders')->countDocuments([
+            'customer_id' => $customerId,
+        ]) > 0;
+    }
+
+    public function deleteByCustomerId(string $customerId): int
+    {
+        if ($customerId === '') {
+            return 0;
+        }
+
+        $result = $this->collection('connection_orders')->deleteMany([
+            'customer_id' => $customerId,
+        ]);
+
+        return $result->getDeletedCount();
+    }
+
     public function findById(string $id): ?array
     {
         $order = $this->collection('connection_orders')->findOne(['_id' => $this->objectId($id)]);

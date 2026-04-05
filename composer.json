@@ -18,6 +18,9 @@
       "Composer\\Config::disableProcessTimeout",
       "php -S localhost:8080 -t public"
     ],
+    "db:clear": [
+      "@php database/clear_data.php"
+    ],
     "post-install-cmd": [
       "@php -r \"if (!file_exists('.env') && file_exists('.env.example')) copy('.env.example', '.env');\""
     ]

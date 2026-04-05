@@ -113,13 +113,25 @@ final class ConnectionController
             return;
         }
 
+        $connection = $this->connections->findById($id);
+        if ($connection === null) {
+            Response::json(['status' => 'error', 'message' => 'Connection not found'], 404);
+            return;
+        }
+
         $deleted = $this->connections->deleteById($id);
         if (!$deleted) {
             Response::json(['status' => 'error', 'message' => 'Connection not found'], 404);
             return;
         }
 
-        Response::json(['status' => 'success', 'message' => 'Connection deleted']);
+        $customerId = (string) ($connection['customer_id'] ?? '');
+        if ($customerId !== '') {
+            $this->connections->deleteByCustomerId($customerId);
+            $this->customers->deleteByCustomerId($customerId);
+        }
+
+        Response::json(['status' => 'success', 'message' => 'Connection and customer deleted']);
     }
 
     public function printSummary(Request $request): void
