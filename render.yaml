@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: bbn-ms
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://bbn-ms.onrender.com
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        value: bbn_ms
+      - key: DEFAULT_ADMIN_NAME
+        value: Administrator
+      - key: DEFAULT_ADMIN_USERNAME
+        value: admin
+      - key: DEFAULT_ADMIN_PASSWORD
+        sync: false

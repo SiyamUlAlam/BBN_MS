@@ -1,0 +1,7 @@
+.git
+.gitignore
+.vscode
+vendor
+node_modules
+.env
+*.log
