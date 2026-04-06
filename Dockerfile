@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     pkg-config \
     && docker-php-ext-install zip \
-    && pecl install mongodb \
+    && pecl install mongodb-1.21.1 \
     && docker-php-ext-enable mongodb \
     && a2enmod rewrite
 
@@ -20,7 +20,7 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 RUN php -m | grep mongodb
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --ignore-platform-req=ext-mongodb
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
