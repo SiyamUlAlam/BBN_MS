@@ -1,21 +1,37 @@
-FROM php:8.2-cli-bookworm
+FROM php:8.2-apache
 
-# Install system tools and MongoDB PHP extension required by the app.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git unzip libssl-dev pkg-config \
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    libzip-dev \
+    libssl-dev \
+    pkg-config \
+    && docker-php-ext-install zip \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb \
-    && rm -rf /var/lib/apt/lists/*
+    && a2enmod rewrite
+
+# Verify mongodb extension is loaded
+RUN php -m | grep mongodb
+
+# Copy Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Set Apache config
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy project files
+COPY . /var/www/html
 
 WORKDIR /var/www/html
 
-# Copy application files.
-COPY . .
-
-# Install PHP dependencies for production.
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Install PHP dependencies
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-# Render provides PORT dynamically. Default is for local container runs.
-EXPOSE 10000
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t public"]
+# Startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]
