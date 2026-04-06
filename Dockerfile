@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     pkg-config \
     && docker-php-ext-install zip \
-    && pecl install mongodb-1.21.1 \
+    && pecl install mongodb-2.2.0 \
     && docker-php-ext-enable mongodb \
     && a2enmod rewrite
 
